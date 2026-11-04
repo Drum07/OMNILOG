@@ -1,0 +1,1 @@
+package br.com.omnilog.payments; import java.math.BigDecimal; public final class Pix implements ProcessadorPagamento { public ResultadoPagamento processar(BigDecimal v,String r){BoletoBancario.validar(v,r);return new ResultadoPagamento(false,"PIX",r,"Cobrança simulada; confirmar no provedor para liquidar");} }

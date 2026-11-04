@@ -1,0 +1,3 @@
+package br.com.omnilog.dao;
+import br.com.omnilog.model.Customer;import java.sql.*;import java.util.*;
+public final class CustomerDao {public List<Customer> search(String term,int limit,int offset)throws SQLException{String q="SELECT customer_id,full_name,email,phone FROM customers WHERE full_name LIKE ? OR email LIKE ? ORDER BY customer_id DESC LIMIT ? OFFSET ?";try(Connection c=ConnectionFactory.get();PreparedStatement p=c.prepareStatement(q)){String s="%"+(term==null?"":term)+"%";p.setString(1,s);p.setString(2,s);p.setInt(3,Math.min(Math.max(limit,1),100));p.setInt(4,Math.max(offset,0));try(ResultSet r=p.executeQuery()){List<Customer> out=new ArrayList<>();while(r.next())out.add(new Customer(r.getLong(1),r.getString(2),r.getString(3),r.getString(4)));return out;}}}}

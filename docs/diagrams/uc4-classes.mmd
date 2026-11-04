@@ -1,0 +1,11 @@
+classDiagram
+ class Veiculo {<<abstract>> -String identificador -BigDecimal capacidadeKg +calcularAutonomiaKm(carga) BigDecimal +calcularCustoFrete(distancia,carga) BigDecimal}
+ Veiculo <|-- CaminhaoFrigorifico
+ Veiculo <|-- VanUtilitaria
+ Veiculo <|-- DroneEntrega
+ class ProcessadorPagamento {<<interface>> +processar(valor,referencia) ResultadoPagamento}
+ ProcessadorPagamento <|.. CartaoCredito
+ ProcessadorPagamento <|.. BoletoBancario
+ ProcessadorPagamento <|.. Pix
+ class HistoricoOperador { -Deque pilha +registrar(acao) +voltar() Optional }
+ class FilaDespacho { -Queue fila +enfileirar(pedido) +despachar() Optional }

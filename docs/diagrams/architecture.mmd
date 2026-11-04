@@ -1,0 +1,11 @@
+flowchart TB
+    C[Cliente] --> WEB[Portal Web]
+    O[Operador] --> DESK[Desktop PySide6]
+    G[Gerente] --> WEB
+    A[Administrador] --> DESK
+    WEB --> API[FastAPI REST]
+    DESK --> API
+    API --> CORE[Serviços e algoritmos]
+    CORE --> DB[(MySQL 8.0)]
+    API --> AUD[Auditoria e segurança]
+    AUD --> DB

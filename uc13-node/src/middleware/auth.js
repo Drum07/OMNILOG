@@ -1,0 +1,4 @@
+import bcrypt from 'bcryptjs';
+import {pool} from '../config/db.js';
+export async function login(req,res,next){try{const {email,password}=req.body||{};if(typeof email!=='string'||typeof password!=='string')return res.status(400).json({error:'Credenciais inválidas'});const [rows]=await pool.execute('SELECT user_id,email,password_hash,is_active FROM users WHERE email=? LIMIT 1',[email.toLowerCase()]);const user=rows[0];if(!user||!user.is_active||!(await bcrypt.compare(password,user.password_hash)))return res.status(401).json({error:'Credenciais inválidas'});req.session.user={id:user.user_id,email:user.email};res.json({authenticated:true,user:{id:user.user_id,email:user.email}});}catch(e){next(e);}}
+export function requireAuth(req,res,next){if(!req.session?.user)return res.status(401).json({error:'Autenticação necessária'});next();}

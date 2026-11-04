@@ -1,0 +1,2706 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111111">
+<title>OMNILOG HUB | Gestão Logística</title>
+
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+:root {
+    --preto: #111;
+    --preto-2: #191919;
+    --cinza-escuro: #292929;
+    --cinza: #777;
+    --cinza-claro: #e8e8e8;
+    --fundo: #f4f4f4;
+    --branco: #fff;
+    --borda: #d5d5d5;
+    --sucesso: #222;
+    --erro: #555;
+    --sombra: 0 8px 25px rgba(0,0,0,.06);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--fundo);
+    color: var(--preto);
+}
+
+button, input, select, textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #555;
+    outline-offset: 3px;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr) 290px;
+    min-height: 100vh;
+}
+
+/* =====================================
+   MENU LATERAL
+===================================== */
+
+.sidebar {
+    background: var(--preto);
+    color: var(--branco);
+    padding: 24px 15px;
+    min-height: 100vh;
+}
+
+.logo {
+    font-size: 21px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 5px 10px;
+}
+
+.logo small {
+    display: block;
+    font-size: 10px;
+    color: #aaa;
+    margin-top: 6px;
+    letter-spacing: 2px;
+}
+
+.menu-titulo {
+    color: #999;
+    font-size: 10px;
+    font-weight: bold;
+    margin: 32px 10px 12px;
+    letter-spacing: 1.5px;
+}
+
+.menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    border-radius: 5px;
+    border-left: 3px solid transparent;
+    padding: 12px 10px;
+    margin-bottom: 5px;
+    color: #ddd;
+    background: transparent;
+    font-size: 13px;
+    transition: .25s ease;
+}
+
+.menu button:hover {
+    background: #333;
+    color: white;
+    transform: translateX(4px);
+}
+
+.menu button.ativo {
+    background: #333;
+    color: white;
+    border-left-color: white;
+}
+
+.rodape-menu {
+    margin: 40px 10px 0;
+    color: #999;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* =====================================
+   CONTEÚDO PRINCIPAL
+===================================== */
+
+.conteudo {
+    padding: 28px;
+    min-width: 0;
+}
+
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.topo h1 {
+    font-size: 25px;
+}
+
+.topo p {
+    color: var(--cinza);
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.status {
+    background: white;
+    border: 1px solid var(--borda);
+    padding: 10px 13px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.status span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #999;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.status.online span {
+    background: #111;
+    animation: pulsar 1.8s infinite;
+}
+
+.status.offline span {
+    background: #888;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 13px;
+    margin-bottom: 25px;
+}
+
+.card {
+    position: relative;
+    overflow: hidden;
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: 7px;
+    padding: 18px;
+    transition: transform .3s ease, box-shadow .3s ease;
+    animation: entrada .7s ease both;
+}
+
+.card:nth-child(2) { animation-delay: .1s; }
+.card:nth-child(3) { animation-delay: .2s; }
+.card:nth-child(4) { animation-delay: .3s; }
+
+.card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    left: -100%;
+    top: 0;
+    width: 100%;
+    height: 3px;
+    background: #111;
+    transition: left .5s ease;
+}
+
+.card:hover::after {
+    left: 0;
+}
+
+.card p {
+    color: var(--cinza);
+    font-size: 12px;
+}
+
+.card strong {
+    display: block;
+    font-size: 28px;
+    margin-top: 10px;
+    transition: transform .3s ease;
+}
+
+.card:hover strong {
+    transform: scale(1.08);
+    transform-origin: left;
+}
+
+.card small {
+    display: block;
+    margin-top: 8px;
+    color: #888;
+    font-size: 10px;
+}
+
+.painel {
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: 7px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: box-shadow .3s ease;
+    animation: entrada .6s ease both;
+}
+
+.painel:hover {
+    box-shadow: var(--sombra);
+}
+
+.painel-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.painel h2 {
+    font-size: 17px;
+}
+
+.painel-cabecalho p {
+    color: var(--cinza);
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.acoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 14px;
+    border: 1px solid var(--preto);
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all .25s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(0,0,0,.13);
+}
+
+.btn:active {
+    transform: scale(.97);
+}
+
+.btn-preto {
+    background: var(--preto);
+    color: white;
+}
+
+.btn-claro {
+    background: white;
+    color: var(--preto);
+}
+
+/* =====================================
+   CENÁRIO 3D
+===================================== */
+
+.hero-3d {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    color: white;
+    background:
+        radial-gradient(ellipse at 70% 50%, #444, #171717 55%, #080808);
+    box-shadow: 0 15px 40px rgba(0,0,0,.2);
+    isolation: isolate;
+    animation: entrada 1s ease both;
+}
+
+#cenario3d {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.hero-conteudo {
+    position: absolute;
+    z-index: 2;
+    left: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.hero-etiqueta {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #bbb;
+    margin-bottom: 14px;
+}
+
+.hero-conteudo h2 {
+    font-size: clamp(27px, 4vw, 46px);
+    letter-spacing: 4px;
+    font-weight: 800;
+    text-shadow: 0 0 25px rgba(255,255,255,.2);
+}
+
+.hero-conteudo p {
+    font-size: 13px;
+    color: #ccc;
+    margin-top: 12px;
+    letter-spacing: 1px;
+}
+
+.hero-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 20px;
+    border: 1px solid #666;
+    border-radius: 30px;
+    padding: 8px 13px;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: #ddd;
+}
+
+.ponto-animado {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 12px white;
+    animation: pulsar 1.5s infinite;
+}
+
+.hero-decoracao {
+    position: absolute;
+    right: 22px;
+    bottom: 18px;
+    color: #777;
+    font-size: 10px;
+    letter-spacing: 3px;
+}
+
+/* =====================================
+   FORMULÁRIO
+===================================== */
+
+.formulario {
+    display: none;
+    border: 1px solid var(--borda);
+    background: #fafafa;
+    border-radius: 6px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.formulario.visivel {
+    display: block;
+    animation: entrada .35s ease both;
+}
+
+.formulario h3 {
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+
+.campos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.campo label {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    background: white;
+    color: #111;
+    min-width: 0;
+}
+
+.campo textarea {
+    min-height: 75px;
+    resize: vertical;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+    outline: 2px solid #555;
+    outline-offset: 1px;
+}
+
+.campo-completo {
+    grid-column: 1 / -1;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.checkbox input {
+    width: auto;
+}
+
+.form-acoes {
+    display: flex;
+    gap: 8px;
+    margin-top: 17px;
+}
+
+/* =====================================
+   TABELAS
+===================================== */
+
+.busca {
+    width: 100%;
+    max-width: 320px;
+    padding: 10px;
+    border: 1px solid var(--borda);
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.tabela-container {
+    overflow-x: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 550px;
+    font-size: 12px;
+}
+
+th, td {
+    text-align: left;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--cinza-claro);
+}
+
+th {
+    background: #f2f2f2;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+td {
+    color: #333;
+}
+
+tbody tr {
+    transition: background .2s ease;
+    animation: linhaEntrada .3s ease both;
+}
+
+tbody tr:hover {
+    background: #f0f0f0;
+}
+
+.acao-tabela {
+    background: white;
+    border: 1px solid #aaa;
+    padding: 6px 9px;
+    border-radius: 4px;
+    margin: 2px;
+    font-size: 11px;
+    transition: .2s ease;
+}
+
+.acao-tabela:hover {
+    background: #eee;
+    transform: translateY(-2px);
+}
+
+.mensagem {
+    display: none;
+    padding: 12px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.mensagem.visivel {
+    display: block;
+    animation: entrada .3s ease both;
+}
+
+.mensagem.erro {
+    border-color: #777;
+    background: #f0f0f0;
+}
+
+.vazio {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+}
+
+/* =====================================
+   PAINEL DE AJUDA
+===================================== */
+
+.ajuda {
+    background: white;
+    border-left: 1px solid var(--borda);
+    padding: 25px 18px;
+    min-width: 0;
+}
+
+.ajuda h2 {
+    font-size: 17px;
+    margin-bottom: 8px;
+}
+
+.ajuda-intro {
+    color: var(--cinza);
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.ajuda-bloco {
+    border-top: 1px solid var(--cinza-claro);
+    padding: 16px 0;
+    transition: padding-left .25s ease;
+}
+
+.ajuda-bloco:hover {
+    padding-left: 5px;
+}
+
+.ajuda-bloco h3 {
+    font-size: 13px;
+    margin-bottom: 9px;
+}
+
+.ajuda-bloco p,
+.ajuda-bloco li {
+    color: #555;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.ajuda-bloco ul,
+.ajuda-bloco ol {
+    padding-left: 18px;
+}
+
+.codigo {
+    background: #eee;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    margin-top: 8px;
+    overflow-wrap: anywhere;
+}
+
+.dica {
+    background: #f3f3f3;
+    border-left: 3px solid #222;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.ajuda-bloco .codigo:hover {
+    background: #ddd;
+}
+
+/* =====================================
+   ANIMAÇÕES
+===================================== */
+
+@keyframes entrada {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes linhaEntrada {
+    from {
+        opacity: 0;
+        transform: translateX(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulsar {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: .45;
+        transform: scale(1.4);
+    }
+}
+
+/* =====================================
+   RESPONSIVIDADE
+===================================== */
+
+@media (max-width: 1100px) {
+    .layout {
+        grid-template-columns: 200px minmax(0, 1fr);
+    }
+
+    .ajuda {
+        grid-column: 1 / -1;
+        border-left: 0;
+        border-top: 1px solid var(--borda);
+    }
+}
+
+@media (max-width: 700px) {
+    .layout {
+        display: block;
+    }
+
+    .sidebar {
+        padding: 15px;
+        min-height: auto;
+    }
+
+    .menu {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+    }
+
+    .menu-titulo {
+        margin-top: 18px;
+    }
+
+    .rodape-menu {
+        display: none;
+    }
+
+    .conteudo {
+        padding: 18px;
+    }
+
+    .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .campos {
+        grid-template-columns: 1fr;
+    }
+
+    .campo-completo {
+        grid-column: auto;
+    }
+
+    .topo {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .hero-3d {
+        height: 250px;
+    }
+
+    .hero-conteudo {
+        left: 20px;
+    }
+}
+
+@media (max-width: 390px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .menu {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- MENU LATERAL -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            OMNILOG HUB
+            <small>TDS TARDE · LOGÍSTICA</small>
+        </div>
+
+        <div class="menu-titulo">PRINCIPAL</div>
+
+        <nav class="menu">
+            <button class="ativo" data-recurso="dashboard"
+                onclick="abrirModulo('dashboard', this)">▦ Dashboard</button>
+        </nav>
+
+        <div class="menu-titulo">CADASTROS</div>
+
+        <nav class="menu">
+            <button data-recurso="customers"
+                onclick="abrirModulo('customers', this)">♙ Clientes</button>
+
+            <button data-recurso="categories"
+                onclick="abrirModulo('categories', this)">▤ Categorias</button>
+
+            <button data-recurso="products"
+                onclick="abrirModulo('products', this)">▣ Produtos</button>
+
+            <button data-recurso="warehouses"
+                onclick="abrirModulo('warehouses', this)">⌂ Armazéns</button>
+
+            <button data-recurso="inventory"
+                onclick="abrirModulo('inventory', this)">▥ Estoque</button>
+        </nav>
+
+        <div class="menu-titulo">GESTÃO LOGÍSTICA</div>
+
+<nav class="menu">
+    <button data-recurso="drivers"
+        onclick="abrirModulo('drivers', this)">♙ Motoristas</button>
+
+    <button data-recurso="vehicles"
+        onclick="abrirModulo('vehicles', this)">▣ Veículos</button>
+
+    <button data-recurso="routes"
+        onclick="abrirModulo('routes', this)">➜ Rotas</button>
+
+    <button data-recurso="warehouse_locations"
+        onclick="abrirModulo('warehouse_locations', this)">⌂ Localizações</button>
+
+    <button data-recurso="payments"
+        onclick="abrirModulo('payments', this)">▤ Pagamentos</button>
+
+    <button data-recurso="deliveries"
+        onclick="abrirModulo('deliveries', this)">◎ Rastreamento</button>
+
+
+        <div class="rodape-menu">
+            OMNILOG HUB<br>
+            Sistema de Gestão Logística<br>
+            Versão 1.0
+        </div>
+
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <main class="conteudo">
+
+        <header class="topo">
+            <div>
+                <h1 id="titulo-pagina">Dashboard</h1>
+                <p id="subtitulo-pagina">Visão geral da operação logística.</p>
+            </div>
+
+            <div class="status" id="status-api">
+                <span></span> Verificando conexão...
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem"
+             role="status" aria-live="polite"></div>
+
+        <!-- DASHBOARD -->
+        <section id="dashboard">
+
+            <section class="hero-3d">
+                <canvas id="cenario3d"
+                    aria-label="Visualização 3D de estruturas logísticas"></canvas>
+
+                <div class="hero-conteudo">
+                    <span class="hero-etiqueta">
+                        LOGISTICS INTELLIGENCE SYSTEM
+                    </span>
+
+                    <h2>OMNILOG HUB</h2>
+
+                    <p>Controle inteligente. Logística integrada.</p>
+
+                    <div class="hero-status">
+                        <span class="ponto-animado"></span>
+                        OPERAÇÃO LOGÍSTICA
+                    </div>
+                </div>
+
+                <div class="hero-decoracao">OH / 001</div>
+            </section>
+
+            <div class="cards">
+
+                <div class="card">
+                    <p>Clientes</p>
+                    <strong id="total-clientes">—</strong>
+                    <small>Registros cadastrados</small>
+                </div>
+
+                <div class="card">
+                    <p>Produtos</p>
+                    <strong id="total-produtos">—</strong>
+                    <small>Itens cadastrados</small>
+                </div>
+
+                <div class="card">
+                    <p>Armazéns</p>
+                    <strong id="total-armazens">—</strong>
+                    <small>Centros cadastrados</small>
+                </div>
+
+                <div class="card">
+                    <p>Pedidos</p>
+                    <strong id="total-pedidos">—</strong>
+                    <small>Pedidos registrados</small>
+                </div>
+
+            </div>
+
+            <section class="painel">
+                <div class="painel-cabecalho">
+                    <div>
+                        <h2>Bem-vindo ao OMNILOG HUB</h2>
+                        <p>Central de gerenciamento de operações.</p>
+                    </div>
+                </div>
+
+                <p style="font-size:13px; line-height:1.8; color:#555">
+                    Utilize o menu lateral para acessar os cadastros e
+                    operações. O painel de orientações à direita explica
+                    como preencher cada módulo e relacionar os registros.
+                </p>
+            </section>
+
+            <section class="painel">
+                <h2>Primeiros passos</h2>
+                <br>
+
+                <ol style="padding-left:20px; font-size:13px; line-height:2">
+                    <li>Cadastre as categorias de produtos.</li>
+                    <li>Cadastre os armazéns.</li>
+                    <li>Cadastre os produtos.</li>
+                    <li>Registre os estoques dos produtos nos armazéns.</li>
+                    <li>Cadastre os clientes.</li>
+                    <li>Registre pedidos e acompanhe as entregas.</li>
+                </ol>
+            </section>
+
+        </section>
+
+        <!-- MÓDULOS -->
+        <section id="modulo" style="display:none">
+
+            <section class="painel">
+
+                <div class="painel-cabecalho">
+                    <div>
+                        <h2 id="titulo-tabela">Registros</h2>
+                        <p id="descricao-tabela">Gerenciamento de registros.</p>
+                    </div>
+
+                    <div class="acoes">
+                        <button class="btn btn-claro"
+                            onclick="carregarRegistros()">Atualizar</button>
+
+                        <button class="btn btn-preto"
+                            onclick="mostrarFormulario()">+ Novo cadastro</button>
+                    </div>
+                </div>
+
+                <form id="formulario" class="formulario"
+                      onsubmit="salvarRegistro(event)">
+
+                    <h3 id="titulo-formulario">Novo cadastro</h3>
+
+                    <div id="campos-formulario" class="campos"></div>
+
+                    <div class="form-acoes">
+                        <button class="btn btn-preto" type="submit">
+                            Salvar registro
+                        </button>
+
+                        <button class="btn btn-claro" type="button"
+                            onclick="fecharFormulario()">
+                            Cancelar
+                        </button>
+                    </div>
+
+                </form>
+
+                <input class="busca" id="busca"
+                    placeholder="Pesquisar registros..."
+                    oninput="filtrarRegistros()"
+                    aria-label="Pesquisar registros">
+
+                <div class="tabela-container">
+                    <table>
+                        <thead id="cabecalho-tabela"></thead>
+                        <tbody id="corpo-tabela">
+                            <tr>
+                                <td class="vazio">Selecione um módulo.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+    <!-- PAINEL DE ORIENTAÇÕES -->
+    <aside class="ajuda">
+
+        <h2>Central de ajuda</h2>
+
+        <p class="ajuda-intro">
+            Orientações para utilizar o sistema, preencher os campos
+            e cadastrar informações corretamente.
+        </p>
+
+        <div id="conteudo-ajuda">
+
+            <div class="ajuda-bloco">
+                <h3>Como começar?</h3>
+                <p>
+                    Selecione uma opção no menu esquerdo. As orientações
+                    serão atualizadas conforme o módulo escolhido.
+                </p>
+            </div>
+
+            <div class="ajuda-bloco">
+                <h3>Ordem recomendada</h3>
+                <ol>
+                    <li>Categorias</li>
+                    <li>Armazéns</li>
+                    <li>Produtos</li>
+                    <li>Estoque</li>
+                    <li>Clientes</li>
+                    <li>Pedidos</li>
+                    <li>Entregas</li>
+                </ol>
+            </div>
+
+            <div class="ajuda-bloco">
+                <h3>Entendendo os IDs</h3>
+                <p>
+                    O ID é um identificador criado pelo banco de dados.
+                    Ele permite relacionar registros de tabelas diferentes.
+                </p>
+                <div class="codigo">
+                    product_id = 1<br>
+                    warehouse_id = 2
+                </div>
+            </div>
+
+        </div>
+
+    </aside>
+
+</div>
+
+<script>
+/* =====================================
+   CONFIGURAÇÕES GERAIS
+===================================== */
+
+const API = "http://127.0.0.1:8000";
+
+const configuracoes = {
+
+    customers: {
+        nome: "Clientes",
+        descricao: "Cadastro e gerenciamento de clientes.",
+        id: "customer_id",
+        campos: [
+            {nome:"full_name", rotulo:"Nome completo", obrigatorio:true},
+            {nome:"email", rotulo:"E-mail", tipo:"email"},
+            {nome:"phone", rotulo:"Telefone"},
+            {nome:"is_active", rotulo:"Cliente ativo", tipo:"checkbox"}
+        ],
+        colunas:["customer_id","full_name","email","phone","is_active"],
+        ajuda: `
+            <div class="ajuda-bloco">
+                <h3>Como cadastrar um cliente</h3>
+                <ol>
+                    <li>Clique em Novo cadastro.</li>
+                    <li>Informe o nome completo.</li>
+                    <li>Informe e-mail e telefone, se disponíveis.</li>
+                    <li>Marque se o cliente está ativo.</li>
+                    <li>Clique em Salvar registro.</li>
+                </ol>
+            </div>
+            <div class="ajuda-bloco">
+                <h3>Identificação</h3>
+                <p>O sistema gera o customer_id automaticamente.</p>
+                <div class="codigo">
+                    customer_id: automático<br>
+                    full_name: Maria Silva
+                </div>
+            </div>
+            <div class="dica">
+                O ID do cliente será utilizado para relacionar pedidos.
+            </div>
+        `
+    },
+
+    categories: {
+        nome: "Categorias",
+        descricao: "Organização dos produtos por categoria.",
+        id: "category_id",
+        campos: [
+            {nome:"category_name", rotulo:"Nome da categoria", obrigatorio:true},
+            {nome:"parent_category_id", rotulo:"ID da categoria principal", tipo:"number"},
+            {nome:"description", rotulo:"Descrição", tipo:"textarea"}
+        ],
+        colunas:["category_id","category_name","parent_category_id","description"],
+        ajuda: `
+            <div class="ajuda-bloco">
+                <h3>Como cadastrar uma categoria</h3>
+                <ol>
+                    <li>Clique em Novo cadastro.</li>
+                    <li>Digite o nome da categoria.</li>
+                    <li>Se for subcategoria, informe o ID da categoria principal.</li>
+                    <li>Adicione uma descrição, se necessário.</li>
+                    <li>Salve o cadastro.</li>
+                </ol>
+            </div>
+            <div class="ajuda-bloco">
+                <h3>Exemplo</h3>
+                <div class="codigo">
+                    category_id: automático<br>
+                    category_name: Eletrônicos<br>
+                    parent_category_id: vazio
+                </div>
+            </div>
+            <div class="dica">
+                Cadastre a categoria antes dos produtos que dependem dela.
+            </div>
+        `
+    },
+
+    products: {
+        nome: "Produtos",
+        descricao: "Cadastro dos produtos comercializados.",
+        id: "product_id",
+        campos: [
+            {nome:"category_id", rotulo:"ID da categoria", tipo:"number", obrigatorio:true},
+            {nome:"sku", rotulo:"Código SKU", obrigatorio:true},
+            {nome:"product_name", rotulo:"Nome do produto", obrigatorio:true},
+            {nome:"description", rotulo:"Descrição", tipo:"textarea"},
+            {nome:"unit_price", rotulo:"Preço unitário", tipo:"number", obrigatorio:true, passo:"0.01"},
+            {nome:"unit_weight_kg", rotulo:"Peso em kg", tipo:"number", passo:"0.001"},
+            {nome:"is_hazardous", rotulo:"Produto perigoso", tipo:"checkbox"},
+            {nome:"is_active", rotulo:"Produto ativo", tipo:"checkbox"}
+        ],
+        colunas:["product_id","sku","product_name","category_id","unit_price","is_active"],
+        ajuda: `
+            <div class="ajuda-bloco">
+                <h3>Como adicionar um produto</h3>
+                <ol>
+                    <li>Cadastre primeiro uma categoria.</li>
+                    <li>Abra Produtos e clique em Novo cadastro.</li>
+                    <li>Informe o ID da categoria.</li>
+                    <li>Crie um código SKU único.</li>
+                    <li>Informe nome, preço e peso.</li>
+                    <li>Marque as opções correspondentes.</li>
+                    <li>Clique em Salvar registro.</li>
+                </ol>
+            </div>
+            <div class="ajuda-bloco">
+                <h3>Exemplo de produto</h3>
+                <div class="codigo">
+                    SKU: ELE-001<br>
+                    product_name: Teclado USB<br>
+                    category_id: 1<br>
+                    unit_price: 89.90<br>
+                    unit_weight_kg: 0.500
+                </div>
+            </div>
+            <div class="ajuda-bloco">
+                <h3>O que é SKU?</h3>
+                <p>
+                    É um código utilizado para identificar cada produto
+                    no estoque e nas operações.
+                </p>
+            </div>
+            <div class="dica">
+                O category_id precisa corresponder a uma categoria existente.
+            </div>
+        `
+    },
+
+    warehouses: {
+        nome: "Armazéns",
+        descricao: "Cadastro dos centros de distribuição e armazéns.",
+        id: "warehouse_id",
+        campos: [
+            {nome:"warehouse_code", rotulo:"Código do armazém", obrigatorio:true},
+            {nome:"warehouse_name", rotulo:"Nome do armazém", obrigatorio:true},
+            {nome:"city", rotulo:"Cidade", obrigatorio:true},
+            {nome:"state_code", rotulo:"UF (2 letras)", obrigatorio:true},
+            {nome:"country_code", rotulo:"País", obrigatorio:true, valorPadrao:"BR"},
+            {nome:"is_active", rotulo:"Armazém ativo", tipo:"checkbox"}
+        ],
+        colunas:["warehouse_id","warehouse_code","warehouse_name","city","state_code","country_code","is_active"],
+        ajuda: `
+            <div class="ajuda-bloco">
+                <h3>Como cadastrar um armazém</h3>
+                <ol>
+                    <li>Clique em Novo cadastro.</li>
+                    <li>Crie um código exclusivo.</li>
+                    <li>Informe o nome do armazém.</li>
+                    <li>Informe cidade e estado.</li>
+                    <li>Informe BR no campo País.</li>
+                    <li>Marque se está ativo.</li>
+                    <li>Salve o cadastro.</li>
+                </ol>
+            </div>
+            <div class="ajuda-bloco">
+                <h3>Exemplo</h3>
+                <div class="codigo">
+                    warehouse_code: ARM-001<br>
+                    warehouse_name: Centro de Distribuição<br>
+                    city: Passo Fundo<br>
+                    state_code: RS<br>
+                    country_code: BR
+                </div>
+            </div>
+            <div class="dica">
+                O código do armazém deve ser exclusivo.
+            </div>
+        `
+    },
+
+    inventory: {
+        nome: "Estoque",
+        descricao: "Controle de quantidades armazenadas.",
+        id: "inventory_id",
+        campos: [
+            {nome:"product_id", rotulo:"ID do produto", tipo:"number", obrigatorio:true},
+            {nome:"warehouse_id", rotulo:"ID do armazém", tipo:"number", obrigatorio:true},
+            {nome:"location_id", rotulo:"ID da localização", tipo:"number"},
+            {nome:"quantity", rotulo:"Quantidade disponível", tipo:"number", obrigatorio:true},
+            {nome:"reserved_quantity", rotulo:"Quantidade reservada", tipo:"number"}
+        ],
+        colunas:["inventory_id","product_id","warehouse_id","location_id","quantity","reserved_quantity"],
+        ajuda: `
+            <div class="ajuda-bloco">
+                <h3>Como adicionar estoque</h3>
+                <ol>
+                    <li>Cadastre o produto.</li>
+                    <li>Cadastre o armazém.</li>
+                    <li>Abra o módulo Estoque.</li>
+                    <li>Informe o ID do produto.</li>
+                    <li>Informe o ID do armazém.</li>
+                    <li>Informe a quantidade disponível.</li>
+                    <li>Informe a quantidade reservada, se houver.</li>
+                    <li>Salve o registro.</li>
+                </ol>
+            </div>
+            <div class="ajuda-bloco">
+                <h3>Exemplo</h3>
+                <div class="codigo">
+                    product_id: 1<br>
+                    warehouse_id: 1<br>
+                    quantity: 100<br>
+                    reserved_quantity: 10
+                </div>
+            </div>
+            <div class="dica">
+                Produto e armazém precisam existir antes do registro de estoque.
+            </div>
+        `
+    },
+
+    orders: {
+        nome: "Pedidos",
+        descricao: "Registro e acompanhamento de pedidos.",
+        id: "order_id",
+        campos: [
+            {nome:"customer_id", rotulo:"ID do cliente", tipo:"number", obrigatorio:true},
+            {nome:"order_number", rotulo:"Número do pedido", obrigatorio:true},
+            {nome:"order_status", rotulo:"Status do pedido", tipo:"select", opcoes:["pending","confirmed","processing","paid","shipped","delivered","cancelled"], obrigatorio:true},
+            {nome:"subtotal", rotulo:"Subtotal", tipo:"number", passo:"0.01"},
+            {nome:"shipping_amount", rotulo:"Valor do frete", tipo:"number", passo:"0.01"},
+            {nome:"total_amount", rotulo:"Valor total", tipo:"number", passo:"0.01"}
+        ],
+        colunas:["order_id","customer_id","order_number","order_status","subtotal","total_amount"],
+        ajuda: `
+            <div class="ajuda-bloco">
+                <h3>Como cadastrar um pedido</h3>
+                <ol>
+                    <li>Cadastre o cliente.</li>
+                    <li>Copie o ID gerado para o cliente.</li>
+                    <li>Informe o ID no cadastro do pedido.</li>
+                    <li>Informe o número do pedido.</li>
+                    <li>Informe o status e os valores.</li>
+                    <li>Salve o cadastro.</li>
+                </ol>
+            </div>
+            <div class="ajuda-bloco">
+                <h3>Exemplo</h3>
+                <div class="codigo">
+                    customer_id: 1<br>
+                    order_number: PED-0001<br>
+                    order_status: pendente<br>
+                    subtotal: 150.00<br>
+                    shipping_amount: 15.00<br>
+                    total_amount: 165.00
+                </div>
+            </div>
+            <div class="dica">
+                O cliente precisa estar cadastrado antes do pedido.
+            </div>
+        `
+    },
+
+    deliveries: {
+        nome: "Entregas",
+        descricao: "Acompanhamento das entregas e transportes.",
+        id: "delivery_id",
+        campos: [
+            {nome:"order_id", rotulo:"ID do pedido", tipo:"number", obrigatorio:true},
+            {nome:"tracking_code", rotulo:"Código de rastreamento", obrigatorio:true},
+            {nome:"delivery_status", rotulo:"Status da entrega", tipo:"select", opcoes:["pending","assigned","picked_up","in_transit","out_for_delivery","delivered","failed","returned"], obrigatorio:true},
+            {nome:"route_id", rotulo:"ID da rota", tipo:"number"},
+            {nome:"vehicle_id", rotulo:"ID do veículo", tipo:"number"},
+            {nome:"driver_id", rotulo:"ID do motorista", tipo:"number"}
+        ],
+        colunas:["delivery_id","order_id","tracking_code","delivery_status","route_id","vehicle_id","driver_id"],
+        ajuda: `
+            <div class="ajuda-bloco">
+                <h3>Como cadastrar uma entrega</h3>
+                <ol>
+                    <li>Cadastre um pedido.</li>
+                    <li>Copie o ID do pedido.</li>
+                    <li>Informe o ID no cadastro da entrega.</li>
+                    <li>Crie um código de rastreamento.</li>
+                    <li>Informe o status.</li>
+                    <li>Preencha os IDs de rota, veículo e motorista, se disponíveis.</li>
+                    <li>Salve o cadastro.</li>
+                </ol>
+            </div>
+            <div class="ajuda-bloco">
+                <h3>Exemplo</h3>
+                <div class="codigo">
+                    order_id: 1<br>
+                    tracking_code: RAST-0001<br>
+                    delivery_status: pendente
+                </div>
+            </div>
+            <div class="dica">
+                O pedido precisa existir antes de cadastrar sua entrega.
+            </div>
+        `
+    },
+
+    drivers: {
+        nome: "Motoristas", descricao: "Cadastro e gerenciamento de motoristas.", id: "driver_id",
+        campos: [
+            {nome:"full_name", rotulo:"Nome completo", obrigatorio:true},
+            {nome:"license_number_hash", rotulo:"Número da habilitação (armazenado protegido)", obrigatorio:true, sensivel:true},
+            {nome:"phone", rotulo:"Telefone"},
+            {nome:"is_active", rotulo:"Motorista ativo", tipo:"checkbox"}
+        ],
+        colunas:["driver_id","full_name","license_number_hash","phone","is_active"],
+        ajuda: `<div class="ajuda-bloco"><h3>Motoristas</h3><p>Informe nome, telefone e identificador da habilitação. O identificador é armazenado como hash.</p></div><div class="dica">Ao editar, deixe o campo da habilitação vazio para manter o valor protegido.</div>`
+    },
+
+    vehicles: {
+        nome: "Veículos", descricao: "Cadastro e gerenciamento da frota.", id: "vehicle_id",
+        campos: [
+            {nome:"plate_hash", rotulo:"Placa ou identificador (armazenado protegido)", obrigatorio:true, sensivel:true},
+            {nome:"vehicle_type", rotulo:"Tipo de veículo", tipo:"select", opcoes:["CAMINHAO_FRIGORIFICO","VAN_UTILITARIA","DRONE_ENTREGA","UTILITARIO","OUTRO"], obrigatorio:true},
+            {nome:"capacity_kg", rotulo:"Capacidade em kg", tipo:"number", passo:"0.001", obrigatorio:true},
+            {nome:"is_active", rotulo:"Veículo ativo", tipo:"checkbox"}
+        ],
+        colunas:["vehicle_id","plate_hash","vehicle_type","capacity_kg","is_active"],
+        ajuda: `<div class="ajuda-bloco"><h3>Veículos</h3><p>Informe o identificador, tipo e capacidade em kg.</p></div><div class="dica">O identificador é armazenado como hash. Ao editar, deixe esse campo vazio para preservar o valor.</div>`
+    },
+
+    routes: {
+        nome: "Rotas", descricao: "Gerenciamento de rotas logísticas.", id: "route_id",
+        campos: [
+            {nome:"route_code", rotulo:"Código da rota", obrigatorio:true},
+            {nome:"origin_warehouse_id", rotulo:"ID do armazém de origem", tipo:"number", obrigatorio:true},
+            {nome:"destination_description", rotulo:"Descrição do destino", obrigatorio:true},
+            {nome:"planned_distance_km", rotulo:"Distância planejada (km)", tipo:"number", passo:"0.001"},
+            {nome:"estimated_cost", rotulo:"Custo estimado", tipo:"number", passo:"0.01"},
+            {nome:"route_status", rotulo:"Status", tipo:"select", opcoes:["PLANNED","IN_PROGRESS","COMPLETED","CANCELLED"]}
+        ],
+        colunas:["route_id","route_code","origin_warehouse_id","destination_description","planned_distance_km","estimated_cost","route_status"],
+        ajuda: `<div class="ajuda-bloco"><h3>Rotas</h3><p>Informe código único, armazém de origem, destino, distância e custo estimados.</p></div><div class="dica">O armazém de origem precisa existir.</div>`
+    },
+
+    warehouse_locations: {
+        nome: "Localizações", descricao: "Posições internas dos armazéns.", id: "location_id",
+        campos: [
+            {nome:"warehouse_id", rotulo:"ID do armazém", tipo:"number", obrigatorio:true},
+            {nome:"aisle", rotulo:"Corredor", tipo:"number", obrigatorio:true},
+            {nome:"shelf", rotulo:"Prateleira", tipo:"number", obrigatorio:true},
+            {nome:"level_no", rotulo:"Nível", tipo:"number", obrigatorio:true},
+            {nome:"max_weight_kg", rotulo:"Peso máximo em kg", tipo:"number", passo:"0.001", obrigatorio:true},
+            {nome:"hazardous_allowed", rotulo:"Aceita produtos perigosos", tipo:"checkbox"},
+            {nome:"location_status", rotulo:"Status", tipo:"select", opcoes:["AVAILABLE","OCCUPIED","BLOCKED"]}
+        ],
+        colunas:["location_id","warehouse_id","aisle","shelf","level_no","max_weight_kg","hazardous_allowed","location_status"],
+        ajuda: `<div class="ajuda-bloco"><h3>Localizações</h3><p>Informe armazém, corredor, prateleira, nível, peso máximo e status.</p></div><div class="dica">A posição dentro do mesmo armazém deve ser única.</div>`
+    },
+
+    payments: {
+        nome: "Pagamentos", descricao: "Registro de pagamentos simulados.", id: "payment_id",
+        campos: [
+            {nome:"order_id", rotulo:"ID do pedido", tipo:"number", obrigatorio:true},
+            {nome:"payment_reference", rotulo:"Referência do pagamento"},
+            {nome:"payment_method", rotulo:"Forma de pagamento", tipo:"select", opcoes:["PIX","CREDIT_CARD","DEBIT_CARD","BOLETO","CASH","OTHER"], obrigatorio:true},
+            {nome:"payment_status", rotulo:"Status", tipo:"select", opcoes:["PENDING","AUTHORIZED","PAID","REFUNDED","FAILED"]},
+            {nome:"amount", rotulo:"Valor", tipo:"number", passo:"0.01", obrigatorio:true}
+        ],
+        colunas:["payment_id","order_id","payment_reference","payment_method","payment_status","amount","paid_at"],
+        ajuda: `<div class="ajuda-bloco"><h3>Pagamentos</h3><p>Cadastre o pedido, forma de pagamento, referência, valor e status.</p></div><div class="dica">Use somente pagamentos simulados. Não informe dados reais de cartão ou banco. O status PAID atualiza o pedido para PAID.</div>`
+    }
+};
+
+
+let recursoAtual = null;
+let registros = [];
+let registroEditando = null;
+
+
+
+/* =====================================
+   MENSAGENS
+===================================== */
+
+function mostrarMensagem(texto, tipo = "normal") {
+    const elemento = document.getElementById("mensagem");
+
+    elemento.textContent = texto;
+    elemento.className = "mensagem visivel";
+
+    if (tipo === "erro") {
+        elemento.classList.add("erro");
+    }
+}
+
+function limparMensagem() {
+    const elemento = document.getElementById("mensagem");
+    elemento.className = "mensagem";
+    elemento.textContent = "";
+}
+
+/* =====================================
+   CONEXÃO COM API
+===================================== */
+
+async function verificarConexao() {
+    const status = document.getElementById("status-api");
+
+    try {
+        const resposta = await fetch(`${API}/health`, {
+            method: "GET"
+        });
+
+        if (!resposta.ok) {
+            throw new Error("API indisponível");
+        }
+
+        status.className = "status online";
+        status.innerHTML = "<span></span> API conectada";
+
+    } catch (erro) {
+        status.className = "status offline";
+        status.innerHTML = "<span></span> API desconectada";
+    }
+}
+
+/* =====================================
+   NAVEGAÇÃO
+===================================== */
+
+function abrirModulo(recurso, botao) {
+
+    document.querySelectorAll(".menu button").forEach(item => {
+        item.classList.remove("ativo");
+    });
+
+    if (botao) {
+        botao.classList.add("ativo");
+    }
+
+    limparMensagem();
+
+    if (recurso === "dashboard") {
+
+        recursoAtual = null;
+
+        document.getElementById("dashboard").style.display = "block";
+        document.getElementById("modulo").style.display = "none";
+
+        document.getElementById("titulo-pagina").textContent = "Dashboard";
+
+        document.getElementById("subtitulo-pagina").textContent =
+            "Visão geral da operação logística.";
+
+        document.getElementById("conteudo-ajuda").innerHTML = `
+            <div class="ajuda-bloco">
+                <h3>Dashboard</h3>
+                <p>Área inicial do sistema, com indicadores e atalhos para os módulos.</p>
+            </div>
+
+            <div class="ajuda-bloco">
+                <h3>Ordem recomendada</h3>
+                <ol>
+                    <li>Categorias</li>
+                    <li>Armazéns</li>
+                    <li>Produtos</li>
+                    <li>Estoque</li>
+                    <li>Clientes</li>
+                    <li>Pedidos</li>
+                    <li>Entregas</li>
+                </ol>
+            </div>
+
+            <div class="dica">
+                Utilize o menu lateral para navegar pelo sistema.
+            </div>
+        `;
+
+        carregarDashboard();
+        return;
+    }
+
+    recursoAtual = recurso;
+    registroEditando = null;
+
+    const config = configuracoes[recurso];
+
+    if (!config) {
+        mostrarMensagem("Módulo não configurado.", "erro");
+        return;
+    }
+
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("modulo").style.display = "block";
+
+    document.getElementById("titulo-pagina").textContent = config.nome;
+    document.getElementById("subtitulo-pagina").textContent = config.descricao;
+    document.getElementById("titulo-tabela").textContent = config.nome;
+    document.getElementById("descricao-tabela").textContent = config.descricao;
+
+    document.getElementById("conteudo-ajuda").innerHTML = config.ajuda;
+
+    document.getElementById("busca").value = "";
+
+    fecharFormulario();
+    montarCabecalho();
+    carregarRegistros();
+
+    document.getElementById("modulo").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+/* =====================================
+   DASHBOARD
+===================================== */
+
+function animarNumero(elemento, valor) {
+
+    const destino = Number(valor);
+
+    if (!Number.isFinite(destino)) {
+        elemento.textContent = valor ?? "—";
+        return;
+    }
+
+    const duracao = 700;
+    const inicio = performance.now();
+
+    function atualizar(agora) {
+
+        const progresso = Math.min(
+            (agora - inicio) / duracao,
+            1
+        );
+
+        const suavizado = 1 - Math.pow(1 - progresso, 3);
+
+        elemento.textContent = Math.round(
+            destino * suavizado
+        ).toLocaleString("pt-BR");
+
+        if (progresso < 1) {
+            requestAnimationFrame(atualizar);
+        }
+    }
+
+    requestAnimationFrame(atualizar);
+}
+
+async function carregarDashboard() {
+
+    const indicadores = {
+        customers: document.getElementById("total-clientes"),
+        products: document.getElementById("total-produtos"),
+        warehouses: document.getElementById("total-armazens"),
+        orders: document.getElementById("total-pedidos")
+    };
+
+    // Mostra que os indicadores estão sendo carregados.
+    Object.values(indicadores).forEach(elemento => {
+        elemento.textContent = "...";
+    });
+
+    function obterLista(dados) {
+        if (Array.isArray(dados)) return dados;
+        if (Array.isArray(dados.items)) return dados.items;
+        if (Array.isArray(dados.results)) return dados.results;
+        if (Array.isArray(dados.data)) return dados.data;
+        return null;
+    }
+
+    try {
+
+        // Primeiro, tenta buscar os indicadores diretamente.
+        const resposta = await fetch(`${API}/api/dashboard`);
+
+        if (!resposta.ok) {
+            throw new Error(`Dashboard retornou HTTP ${resposta.status}`);
+        }
+
+        const dados = await resposta.json();
+
+        console.log("Resposta do Dashboard:", dados);
+
+        // Aceita diferentes nomes para os indicadores.
+        const aliases = {
+            customers: [
+                "total_customers",
+                "customers",
+                "total_clientes"
+            ],
+            products: [
+                "total_products",
+                "products",
+                "total_produtos"
+            ],
+            warehouses: [
+                "total_warehouses",
+                "warehouses",
+                "total_armazens"
+            ],
+            orders: [
+                "total_orders",
+                "orders",
+                "total_pedidos"
+            ]
+        };
+
+        let encontrouIndicador = false;
+
+        for (const [tipo, nomes] of Object.entries(aliases)) {
+
+            for (const nome of nomes) {
+
+                if (
+                    dados[nome] !== undefined &&
+                    dados[nome] !== null
+                ) {
+                    animarNumero(indicadores[tipo], dados[nome]);
+                    encontrouIndicador = true;
+                    break;
+                }
+            }
+        }
+
+        // Se a API não trouxe os indicadores esperados,
+        // consulta os módulos diretamente.
+        if (!encontrouIndicador) {
+            throw new Error("A API não retornou os indicadores esperados.");
+        }
+
+    } catch (erro) {
+
+        console.warn(
+            "Não foi possível utilizar /api/dashboard. Tentando consultar os módulos:",
+            erro
+        );
+
+        try {
+
+            const recursos = [
+                "customers",
+                "products",
+                "warehouses",
+                "orders"
+            ];
+
+            const resultados = await Promise.all(
+                recursos.map(async recurso => {
+
+                    const resposta = await fetch(
+                        `${API}/api/${recurso}`
+                    );
+
+                    if (!resposta.ok) {
+                        throw new Error(
+                            `Erro ao consultar ${recurso}: HTTP ${resposta.status}`
+                        );
+                    }
+
+                    const dados = await resposta.json();
+                    const lista = obterLista(dados);
+
+                    if (lista) {
+                        return lista.length;
+                    }
+
+                    // Também aceita APIs que retornam somente a contagem.
+                    if (Number.isFinite(Number(dados.total))) {
+                        return Number(dados.total);
+                    }
+
+                    if (Number.isFinite(Number(dados.count))) {
+                        return Number(dados.count);
+                    }
+
+                    throw new Error(
+                        `Formato de resposta inesperado em ${recurso}.`
+                    );
+                })
+            );
+
+            animarNumero(indicadores.customers, resultados[0]);
+            animarNumero(indicadores.products, resultados[1]);
+            animarNumero(indicadores.warehouses, resultados[2]);
+            animarNumero(indicadores.orders, resultados[3]);
+
+            console.log("Indicadores carregados diretamente dos módulos.");
+
+        } catch (erroFallback) {
+
+            console.error(
+                "Erro ao carregar os indicadores:",
+                erroFallback
+            );
+
+            Object.values(indicadores).forEach(elemento => {
+                elemento.textContent = "—";
+            });
+
+            mostrarMensagem(
+                "Não foi possível carregar os indicadores. Verifique as rotas da API e a conexão com o banco de dados.",
+                "erro"
+            );
+        }
+    }
+}
+
+/* =====================================
+   CABEÇALHO DA TABELA
+===================================== */
+
+function montarCabecalho() {
+
+    const config = configuracoes[recursoAtual];
+
+    document.getElementById("cabecalho-tabela").innerHTML =
+        "<tr>" +
+        config.colunas.map(coluna =>
+            `<th>${escaparHtml(traduzirColuna(coluna))}</th>`
+        ).join("") +
+        "<th>Ações</th></tr>";
+}
+
+/* =====================================
+   BUSCAR REGISTROS
+===================================== */
+
+async function carregarRegistros() {
+
+    if (!recursoAtual) return;
+
+    limparMensagem();
+
+    const corpo = document.getElementById("corpo-tabela");
+
+    corpo.innerHTML = `
+        <tr>
+            <td colspan="10" class="vazio">Carregando registros...</td>
+        </tr>
+    `;
+
+    try {
+
+        const resposta = await fetch(
+            `${API}/api/${recursoAtual}`
+        );
+
+        if (!resposta.ok) {
+            throw new Error(`Erro HTTP ${resposta.status}`);
+        }
+
+        const dados = await resposta.json();
+
+        registros = Array.isArray(dados)
+            ? dados
+            : (dados.items || dados.results || []);
+
+        if (!Array.isArray(registros)) {
+            registros = [];
+        }
+
+        renderizarTabela(registros);
+
+    } catch (erro) {
+
+        console.error("Erro ao consultar registros:", erro);
+
+        registros = [];
+
+        corpo.innerHTML = `
+            <tr>
+                <td colspan="10" class="vazio">
+                    Não foi possível carregar os registros.
+                </td>
+            </tr>
+        `;
+
+        mostrarMensagem(
+            "Erro ao consultar a API. Confira se o servidor está ligado e se a rota /api/" +
+            recursoAtual + " está disponível.",
+            "erro"
+        );
+    }
+}
+
+/* =====================================
+   EXIBIR TABELA
+===================================== */
+
+const TRADUCOES_OPCOES = {
+    "PIX": "PIX",
+    "CREDIT_CARD": "Cartão de crédito",
+    "DEBIT_CARD": "Cartão de débito",
+    "BOLETO": "Boleto bancário",
+    "CASH": "Dinheiro",
+    "OTHER": "Outro",
+    "PENDING": "Pendente",
+    "AUTHORIZED": "Autorizado",
+    "PAID": "Pago",
+    "REFUNDED": "Estornado",
+    "FAILED": "Falhou",
+    "PLANNED": "Planejada",
+    "IN_PROGRESS": "Em andamento",
+    "COMPLETED": "Concluída",
+    "CANCELLED": "Cancelada",
+    "AVAILABLE": "Disponível",
+    "OCCUPIED": "Ocupada",
+    "BLOCKED": "Bloqueada",
+    "CAMINHAO_FRIGORIFICO": "Caminhão frigorífico",
+    "VAN_UTILITARIA": "Van utilitária",
+    "DRONE_ENTREGA": "Drone de entrega",
+    "UTILITARIO": "Utilitário",
+    "OUTRO": "Outro",
+    "pending": "Pendente",
+    "confirmed": "Confirmado",
+    "processing": "Em separação",
+    "paid": "Pago",
+    "shipped": "Enviado",
+    "delivered": "Entregue",
+    "cancelled": "Cancelado",
+    "assigned": "Motorista designado",
+    "picked_up": "Coletado",
+    "in_transit": "Em trânsito",
+    "out_for_delivery": "Saiu para entrega",
+    "failed": "Falha na entrega",
+    "returned": "Devolvido",
+    "true": "Sim",
+    "false": "Não"
+};
+
+function traduzirOpcao(valor) {
+    const chave = String(valor ?? "");
+    return TRADUCOES_OPCOES[chave] || chave;
+}
+
+const TRADUCOES_COLUNAS = {
+    customer_id: "ID do cliente",
+    full_name: "Nome completo",
+    email: "E-mail",
+    phone: "Telefone",
+    is_active: "Ativo",
+    category_id: "ID da categoria",
+    category_name: "Nome da categoria",
+    product_id: "ID do produto",
+    product_name: "Nome do produto",
+    sku: "Código do produto",
+    price: "Preço",
+    warehouse_id: "ID do armazém",
+    warehouse_name: "Nome do armazém",
+    city: "Cidade",
+    state_code: "UF",
+    inventory_id: "ID do estoque",
+    quantity: "Quantidade",
+    order_id: "ID do pedido",
+    order_number: "Número do pedido",
+    order_status: "Status do pedido",
+    subtotal: "Subtotal",
+    shipping_amount: "Valor do frete",
+    total_amount: "Valor total",
+    delivery_id: "ID da entrega",
+    tracking_code: "Código de rastreamento",
+    delivery_status: "Status da entrega",
+    route_id: "ID da rota",
+    vehicle_id: "ID do veículo",
+    driver_id: "ID do motorista",
+    payment_id: "ID do pagamento",
+    payment_reference: "Referência do pagamento",
+    payment_method: "Forma de pagamento",
+    payment_status: "Status do pagamento",
+    amount: "Valor",
+    paid_at: "Data do pagamento",
+    plate_hash: "Identificador protegido do veículo",
+    vehicle_type: "Tipo de veículo",
+    capacity_kg: "Capacidade (kg)",
+    license_number_hash: "Habilitação protegida",
+    route_code: "Código da rota",
+    origin_warehouse_id: "Armazém de origem",
+    destination_description: "Destino",
+    planned_distance_km: "Distância planejada (km)",
+    estimated_cost: "Custo estimado",
+    aisle: "Corredor",
+    shelf: "Prateleira",
+    level_no: "Nível",
+    max_weight_kg: "Peso máximo (kg)",
+    hazardous_allowed: "Aceita produtos perigosos",
+    location_status: "Status da localização",
+    created_at: "Data de criação",
+    shipped_at: "Data de envio",
+    delivered_at: "Data da entrega"
+};
+
+function traduzirColuna(coluna) {
+    return TRADUCOES_COLUNAS[coluna] || coluna.replaceAll("_", " ");
+}
+
+function renderizarTabela(lista) {
+
+    const config = configuracoes[recursoAtual];
+    const corpo = document.getElementById("corpo-tabela");
+
+    if (!lista.length) {
+
+        corpo.innerHTML = `
+            <tr>
+                <td colspan="10" class="vazio">
+                    Nenhum registro encontrado.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    corpo.innerHTML = lista.map(registro => {
+
+        const id = registro[config.id];
+
+        const celulas = config.colunas.map(coluna => {
+
+            const valor = registro[coluna];
+
+            return `
+                <td>${escaparHtml(
+                    valor === null || valor === undefined
+                        ? "—"
+                        : (typeof valor === "boolean"
+                            ? traduzirOpcao(valor)
+                            : traduzirOpcao(String(valor)))
+                )}</td>
+            `;
+
+        }).join("");
+
+        return `
+            <tr>
+                ${celulas}
+
+                <td>
+                    <button class="acao-tabela"
+                        onclick="editarRegistro(${Number(id)})">
+                        Editar
+                    </button>
+
+                    <button class="acao-tabela"
+                        onclick="excluirRegistro(${Number(id)})">
+                        Excluir
+                    </button>
+                </td>
+            </tr>
+        `;
+
+    }).join("");
+}
+
+/* =====================================
+   PESQUISA
+===================================== */
+
+function filtrarRegistros() {
+
+    const termo = document.getElementById("busca")
+        .value.toLowerCase().trim();
+
+    const filtrados = registros.filter(registro => {
+
+        return Object.values(registro).some(valor =>
+            String(valor ?? "").toLowerCase().includes(termo)
+        );
+
+    });
+
+    renderizarTabela(filtrados);
+}
+
+/* =====================================
+   CRIAR FORMULÁRIO
+===================================== */
+
+function mostrarFormulario() {
+
+    if (!recursoAtual) return;
+
+    registroEditando = null;
+
+    document.getElementById("titulo-formulario").textContent =
+        "Novo cadastro";
+
+    montarCampos({});
+
+    document.getElementById("formulario").classList.add("visivel");
+
+    document.getElementById("formulario").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+/* =====================================
+   MONTAR CAMPOS
+===================================== */
+
+function montarCampos(dados) {
+
+    const config = configuracoes[recursoAtual];
+
+    const area = document.getElementById("campos-formulario");
+
+    area.innerHTML = config.campos.map(campo => {
+
+        const valor = campo.sensivel
+            ? ""
+            : (dados[campo.nome] ?? campo.valorPadrao ?? "");
+
+        if (campo.tipo === "checkbox") {
+
+            return `
+                <div class="campo campo-completo">
+                    <label class="checkbox">
+                        <input type="checkbox"
+                            name="${campo.nome}"
+                            ${valor ? "checked" : ""}>
+                        ${escaparHtml(campo.rotulo)}
+                    </label>
+                </div>
+            `;
+        }
+
+        if (campo.tipo === "select") {
+            const valorAtual = String(valor);
+            return `
+                <div class="campo">
+                    <label for="campo-${campo.nome}">${escaparHtml(campo.rotulo)}</label>
+                    <select id="campo-${campo.nome}" name="${campo.nome}"
+                        ${campo.obrigatorio && !(campo.sensivel && registroEditando !== null) ? "required" : ""}>
+                        <option value="">Selecione...</option>
+                        ${(campo.opcoes || []).map(opcao => `
+                            <option value="${escaparHtml(opcao)}" ${valorAtual === opcao ? "selected" : ""}>
+                                ${escaparHtml(traduzirOpcao(opcao))}
+                            </option>
+                        `).join("")}
+                    </select>
+                </div>
+            `;
+        }
+
+        if (campo.tipo === "textarea") {
+
+            return `
+                <div class="campo campo-completo">
+                    <label for="campo-${campo.nome}">
+                        ${escaparHtml(campo.rotulo)}
+                    </label>
+
+                    <textarea
+                        id="campo-${campo.nome}"
+                        name="${campo.nome}"
+                        ${campo.obrigatorio ? "required" : ""}
+                    >${escaparHtml(String(valor))}</textarea>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="campo">
+                <label for="campo-${campo.nome}">
+                    ${escaparHtml(campo.rotulo)}
+                </label>
+
+                <input
+                    id="campo-${campo.nome}"
+                    name="${campo.nome}"
+                    type="${campo.tipo || "text"}"
+                    value="${escaparHtml(String(valor))}"
+                    ${campo.obrigatorio && !(campo.sensivel && registroEditando !== null) ? "required" : ""}
+                    ${campo.passo ? `step="${campo.passo}"` : ""}
+                    ${campo.tipo === "number" ? 'min="0"' : ""}
+                >
+            </div>
+        `;
+
+    }).join("");
+}
+
+/* =====================================
+   FECHAR FORMULÁRIO
+===================================== */
+
+function fecharFormulario() {
+
+    const formulario = document.getElementById("formulario");
+
+    formulario.classList.remove("visivel");
+    formulario.reset();
+
+    registroEditando = null;
+}
+
+/* =====================================
+   EDITAR REGISTRO
+===================================== */
+
+function editarRegistro(id) {
+
+    const config = configuracoes[recursoAtual];
+
+    const registro = registros.find(item =>
+        Number(item[config.id]) === Number(id)
+    );
+
+    if (!registro) {
+        mostrarMensagem("Registro não encontrado.", "erro");
+        return;
+    }
+
+    registroEditando = id;
+
+    document.getElementById("titulo-formulario").textContent =
+        "Editar cadastro";
+
+    montarCampos(registro);
+
+    document.getElementById("formulario")
+        .classList.add("visivel");
+
+    document.getElementById("formulario")
+        .scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+}
+
+/* =====================================
+   SALVAR REGISTRO
+===================================== */
+
+async function salvarRegistro(evento) {
+
+    evento.preventDefault();
+
+    const config = configuracoes[recursoAtual];
+    const formulario = document.getElementById("formulario");
+
+    if (!formulario.reportValidity()) {
+        return;
+    }
+
+    const dados = {};
+
+    config.campos.forEach(campo => {
+
+        const elemento = formulario.elements[campo.nome];
+
+        if (campo.tipo === "checkbox") {
+
+            dados[campo.nome] = elemento.checked;
+
+        } else if (elemento.value.trim() !== "") {
+
+            if (campo.tipo === "number") {
+                dados[campo.nome] = Number(elemento.value);
+            } else {
+                dados[campo.nome] = elemento.value.trim();
+            }
+        }
+    });
+
+    const editando = registroEditando !== null;
+
+    const url = editando
+        ? `${API}/api/${recursoAtual}/${registroEditando}`
+        : `${API}/api/${recursoAtual}`;
+
+    const botaoSalvar = formulario.querySelector(
+        'button[type="submit"]'
+    );
+
+    botaoSalvar.disabled = true;
+    botaoSalvar.textContent = "Salvando...";
+
+    try {
+
+        const resposta = await fetch(url, {
+            method: editando ? "PUT" : "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dados)
+        });
+
+        if (!resposta.ok) {
+
+            const erro = await resposta.text();
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}: ${erro}`
+            );
+        }
+
+        mostrarMensagem(
+            editando
+                ? "Registro atualizado com sucesso."
+                : "Registro cadastrado com sucesso."
+        );
+
+        fecharFormulario();
+
+        await carregarRegistros();
+
+        if (recursoAtual === "customers" ||
+            recursoAtual === "products" ||
+            recursoAtual === "warehouses") {
+            await carregarDashboard();
+        }
+
+    } catch (erro) {
+
+        console.error("Erro ao salvar:", erro);
+
+        mostrarMensagem(
+            "Não foi possível salvar o registro. " + erro.message,
+            "erro"
+        );
+
+    } finally {
+
+        botaoSalvar.disabled = false;
+        botaoSalvar.textContent = "Salvar registro";
+    }
+}
+
+/* =====================================
+   EXCLUIR REGISTRO
+===================================== */
+
+async function excluirRegistro(id) {
+
+    const config = configuracoes[recursoAtual];
+
+    if (!confirm(
+        `Deseja realmente excluir o registro ${id} de ${config.nome}?`
+    )) {
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+            `${API}/api/${recursoAtual}/${id}`,
+            {method: "DELETE"}
+        );
+
+        if (!resposta.ok) {
+
+            const erro = await resposta.text();
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}: ${erro}`
+            );
+        }
+
+        mostrarMensagem("Registro excluído com sucesso.");
+
+        await carregarRegistros();
+
+        if (["customers", "products", "warehouses"].includes(recursoAtual)) {
+            await carregarDashboard();
+        }
+
+    } catch (erro) {
+
+        console.error("Erro ao excluir:", erro);
+
+        mostrarMensagem(
+            "Não foi possível excluir o registro. " + erro.message,
+            "erro"
+        );
+    }
+}
+
+/* =====================================
+   PROTEÇÃO DE TEXTO HTML
+===================================== */
+
+function escaparHtml(valor) {
+
+    return String(valor)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+/* =====================================
+   INICIALIZAÇÃO
+===================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    carregarDashboard();
+    verificarConexao();
+
+    setInterval(verificarConexao, 15000);
+
+});
+</script>
+
+<!-- =====================================
+     THREE.JS - CENÁRIO LOGÍSTICO 3D
+===================================== -->
+
+<script>
+(() => {
+
+    const canvas = document.getElementById("cenario3d");
+
+    if (!canvas || typeof THREE === "undefined") {
+        console.warn("Three.js não foi carregado.");
+        return;
+    }
+
+    const movimentoReduzido = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    const cena = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(
+        55,
+        1,
+        0.1,
+        100
+    );
+
+    camera.position.set(0, 2.5, 11);
+
+    const renderizador = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true
+    });
+
+    renderizador.setPixelRatio(
+        Math.min(window.devicePixelRatio, 1.7)
+    );
+
+    renderizador.setClearColor(0x000000, 0);
+
+    /* ILUMINAÇÃO */
+
+    const luzAmbiente = new THREE.AmbientLight(
+        0xffffff,
+        1.2
+    );
+
+    cena.add(luzAmbiente);
+
+    const luzPrincipal = new THREE.PointLight(
+        0xffffff,
+        2.5
+    );
+
+    luzPrincipal.position.set(2, 5, 5);
+    cena.add(luzPrincipal);
+
+    /* GRUPO PRINCIPAL */
+
+    const grupo = new THREE.Group();
+    cena.add(grupo);
+
+    /* GRADE */
+
+    const grade = new THREE.GridHelper(
+        24,
+        32,
+        0x777777,
+        0x444444
+    );
+
+    grade.position.y = -2;
+    grade.material.transparent = true;
+    grade.material.opacity = 0.35;
+
+    cena.add(grade);
+
+    /* ESTRUTURAS DOS ARMAZÉNS */
+
+    const materialLinhas = new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.75
+    });
+
+    const estruturas = [];
+
+    function criarArmazem(x, y, z, largura, altura, profundidade) {
+
+        const geometria = new THREE.BoxGeometry(
+            largura,
+            altura,
+            profundidade
+        );
+
+        const arestas = new THREE.EdgesGeometry(geometria);
+
+        const linhas = new THREE.LineSegments(
+            arestas,
+            materialLinhas.clone()
+        );
+
+        linhas.position.set(x, y, z);
+
+        grupo.add(linhas);
+
+        return linhas;
+    }
+
+    estruturas.push(
+        criarArmazem(-3.5, -0.3, 0, 1.2, 2.4, 1.2)
+    );
+
+    estruturas.push(
+        criarArmazem(-1.9, -0.3, 0, 1.2, 2.4, 1.2)
+    );
+
+    estruturas.push(
+        criarArmazem(-0.3, -0.3, 0, 1.2, 2.4, 1.2)
+    );
+
+    estruturas.push(
+        criarArmazem(1.3, -0.3, 0, 1.2, 2.4, 1.2)
+    );
+
+    estruturas.push(
+        criarArmazem(2.9, -0.3, 0, 1.2, 2.4, 1.2)
+    );
+
+    /* ANÉIS DE DISTRIBUIÇÃO */
+
+    const aneis = [];
+
+    for (let i = 0; i < 3; i++) {
+
+        const geometria = new THREE.TorusGeometry(
+            2.2 + i * 0.55,
+            0.008,
+            8,
+            100
+        );
+
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.3 - i * 0.06
+        });
+
+        const anel = new THREE.Mesh(
+            geometria,
+            material
+        );
+
+        anel.rotation.x = Math.PI / 2.4;
+        anel.position.y = -0.3 + i * 0.3;
+
+        grupo.add(anel);
+        aneis.push(anel);
+    }
+
+    /* PARTÍCULAS */
+
+    const quantidade = 450;
+
+    const posicoes = new Float32Array(
+        quantidade * 3
+    );
+
+    for (let i = 0; i < quantidade; i++) {
+
+        posicoes[i * 3] = (Math.random() - 0.5) * 16;
+        posicoes[i * 3 + 1] = (Math.random() - 0.5) * 7;
+        posicoes[i * 3 + 2] = (Math.random() - 0.5) * 8;
+    }
+
+    const geometriaParticulas = new THREE.BufferGeometry();
+
+    geometriaParticulas.setAttribute(
+        "position",
+        new THREE.BufferAttribute(posicoes, 3)
+    );
+
+    const materialParticulas = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.035,
+        transparent: true,
+        opacity: 0.7
+    });
+
+    const particulas = new THREE.Points(
+        geometriaParticulas,
+        materialParticulas
+    );
+
+    cena.add(particulas);
+
+    /* PONTOS DE DISTRIBUIÇÃO */
+
+    const pontos = [];
+
+    for (let i = 0; i < 8; i++) {
+
+        const geometria = new THREE.SphereGeometry(
+            0.07,
+            12,
+            12
+        );
+
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xffffff
+        });
+
+        const ponto = new THREE.Mesh(
+            geometria,
+            material
+        );
+
+        ponto.position.set(
+            Math.sin(i * 0.9) * 4,
+            Math.cos(i * 1.3) * 1.2,
+            Math.sin(i) * 1.5
+        );
+
+        grupo.add(ponto);
+        pontos.push(ponto);
+    }
+
+    /* ANIMAÇÃO */
+
+    let quadro = null;
+    let tempo = 0;
+    let larguraAnterior = 0;
+    let alturaAnterior = 0;
+
+    function redimensionar() {
+
+        const largura = canvas.clientWidth;
+        const altura = canvas.clientHeight;
+
+        if (!largura || !altura) return;
+
+        if (
+            largura === larguraAnterior &&
+            altura === alturaAnterior
+        ) {
+            return;
+        }
+
+        larguraAnterior = largura;
+        alturaAnterior = altura;
+
+        camera.aspect = largura / altura;
+        camera.updateProjectionMatrix();
+
+        renderizador.setSize(
+            largura,
+            altura,
+            false
+        );
+    }
+
+    function animar() {
+
+        quadro = requestAnimationFrame(animar);
+
+        redimensionar();
+
+        if (!movimentoReduzido) {
+
+            tempo += 0.008;
+
+            grupo.rotation.y = Math.sin(tempo * 0.5) * 0.12;
+            grupo.rotation.x = Math.sin(tempo * 0.3) * 0.035;
+
+            estruturas.forEach((estrutura, i) => {
+
+                estrutura.position.y =
+                    -0.3 + Math.sin(tempo * 1.5 + i) * 0.12;
+
+            });
+
+            aneis.forEach((anel, i) => {
+
+                anel.rotation.z += 0.0015 * (i + 1);
+
+            });
+
+            particulas.rotation.y += 0.0005;
+
+            pontos.forEach((ponto, i) => {
+
+                ponto.position.y =
+                    Math.cos(tempo * 1.5 + i) * 1.2;
+
+            });
+        }
+
+        renderizador.render(cena, camera);
+    }
+
+    redimensionar();
+    animar();
+
+    /* LIMPEZA DOS RECURSOS */
+
+    window.addEventListener("pagehide", () => {
+
+        if (quadro !== null) {
+            cancelAnimationFrame(quadro);
+        }
+
+        renderizador.dispose();
+
+        geometriaParticulas.dispose();
+        materialParticulas.dispose();
+
+        estruturas.forEach(estrutura => {
+            estrutura.geometry.dispose();
+            estrutura.material.dispose();
+        });
+
+        aneis.forEach(anel => {
+            anel.geometry.dispose();
+            anel.material.dispose();
+        });
+
+    });
+
+})();
+</script>
+
+</body>
+</html>

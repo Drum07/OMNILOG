@@ -1,0 +1,2 @@
+import {Router} from 'express';import * as customers from '../controllers/customerController.js';import {login,requireAuth} from '../middleware/auth.js';
+const router=Router();router.get('/health',(_req,res)=>res.json({status:'ok'}));router.post('/auth/login',login);router.post('/auth/logout',(req,res)=>req.session.destroy(()=>res.status(204).end()));router.get('/customers',requireAuth,customers.list);router.get('/customers/:id',requireAuth,customers.get);router.post('/customers',requireAuth,customers.create);export default router;
